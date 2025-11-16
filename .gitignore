@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# Database dumps
+*.sql
+*.dump
+
+# Alembic cache
+alembic/__pycache__/
+
+# Frontend
+
+# Editor / OS junk
+.vscode/
+.DS_Store
+Thumbs.db
