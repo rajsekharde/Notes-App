@@ -12,8 +12,8 @@ const NoteModal = ({ note, onClose }) => {
         <h2>{note.title}</h2>
         <p>{note.content}</p>
         <small>
-          Created: {note.created_at} <br />
-          Updated: {note.updated_at}
+          Created: {new Date(note.created_at).toLocaleString()} <br />
+          Updated: {new Date(note.updated_at).toLocaleString()}
         </small>
       </div>
     </div>

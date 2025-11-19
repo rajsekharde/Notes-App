@@ -1,68 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./Notes.css";
 import NoteModal from "../components/NoteModal";
+import testDb from "./testDB"
 
-const testDb = [
-    {
-        id: "1",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "2",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdghhhhhhhhsdfghsdgfhdghsdghzfadgfhadfhhadfhadhdfDfDfDFhDgjsfgjdtyjdyhjdyjsyjsyjjdgfhzdgjzadghDGhdgh",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "3",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "4",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "5",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "6",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "7",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    },
-    {
-        id: "8",
-        title: "dfgdfg",
-        content: "sdgasdgasdfgasfdg",
-        created_at: "test",
-        updated_at: "test"
-    }
-]
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Notes() {
     const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState(null);
 
     function truncate(text, maxLength) {
@@ -70,9 +15,25 @@ function Notes() {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
 
+    async function getNotes() {
+        const response = await fetch(`${BASE_URL}/notes/`);
+        if(!response.ok) {
+            console.error("Error fetching notes");
+            setLoading(false);
+            setNotes(testDb);
+            return;
+        }
+        const data = await response.json();
+        setNotes(data);
+        setLoading(false);
+    }
+
     useEffect(() => {
-        setNotes(testDb);
+        getNotes();
     }, []);
+
+    if(loading)
+        return <h2>Loading...</h2>
 
     return (
         <div id="pageContainer">
@@ -88,9 +49,9 @@ function Notes() {
                         <h3>{truncate(note.title, 10)}</h3>
                         <p>{truncate(note.content, 20)}</p>
                         <small>
-                            Created: {note.created_at}
+                            Created: {new Date(note.created_at).toLocaleString()}
                             <br />
-                            Updated: {note.updated_at}
+                            Updated: {new Date(note.updated_at).toLocaleString()}
                         </small>
                     </div>
                 ))}
