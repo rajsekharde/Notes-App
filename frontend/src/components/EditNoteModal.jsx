@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './NoteModal.css';
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const CreateNoteModal = ({ onClose, onCreate }) => {
+const EditNoteModal = ({ onClose, onCreate }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,15 +11,7 @@ const CreateNoteModal = ({ onClose, onCreate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const trimmedTitle = title.trim();
-    const trimmedContent = content.trim();
-
-    // ❌ Prevent submitting empty title or content
-    if (!trimmedTitle || !trimmedContent) {
-      setError("Title and content cannot be empty.");
-      return;
-    }
-
+    if (!title.trim() || !content.trim()) return;
 
     setLoading(true);
     setError(null);
@@ -30,10 +22,7 @@ const CreateNoteModal = ({ onClose, onCreate }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: trimmedTitle,
-          content: trimmedContent,
-        }),
+        body: JSON.stringify({ title, content }),
       });
 
       if (!response.ok) {
@@ -50,42 +39,34 @@ const CreateNoteModal = ({ onClose, onCreate }) => {
     }
   };
 
-  const isInvalid = !title.trim() || !content.trim();
-
   return (
     <div className="modalOverlay" onClick={onClose}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
         <button className="closeButton" onClick={onClose}>×</button>
         <h2>Create Note</h2>
-
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
-
           <textarea
             placeholder="Content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={6}
+            required
           />
-
-
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-
-          <button
-            type="submit"
-            className="submitButton"
-          >
+          <button type="submit" className="submitButton" disabled={loading}>
             {loading ? 'Creating...' : 'Create'}
           </button>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
         </form>
       </div>
     </div>
   );
 };
 
-export default CreateNoteModal;
+export default EditNoteModal;

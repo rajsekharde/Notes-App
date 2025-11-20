@@ -27,6 +27,50 @@
   word-wrap: break-word;
 }
 
+#bottomDiv {
+  display: flex;
+  justify-content: space-between;
+}
+
+.editButton {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  margin-left: 10px;
+}
+.editButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: translateY(-1px);
+}
+
+.deleteButton {
+  background-color: rgb(255, 36, 36);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  margin-left: 10px;
+}
+.deleteButton:hover {
+  background-color: rgb(187, 27, 27);
+  transform: translateY(-1px);
+}
+
+#editButtonsDiv {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* ===== Close Button ===== */
 
 .closeButton {
@@ -72,7 +116,7 @@
 
 .modalContent input,
 .modalContent textarea {
-  width: 90%;
+  width: 94%;
   padding: 12px 14px;
   margin-bottom: 16px;
   border-radius: 6px;
@@ -107,4 +151,8 @@
 .submitButton:hover {
   background-color: var(--accent-primary-hover);
   transform: translateY(-1px);
+}
+
+#editingDiv {
+  margin-top: 20px;
 }

@@ -1,6 +1,6 @@
 /* ===== Color System ===== */
 :root {
-  --bg-main: #FAFBFC;               /* light clean background */
+  --bg-main: #f5f9ff;               /* light clean background */
   --bg-card: #FFFFFF;
   --bg-input: #F5F6F8;
 
@@ -114,4 +114,14 @@ body {
 .floatingButton:hover {
   background-color: var(--accent-primary-hover);
   transform: scale(1.08);
+}
+
+#loadingDiv {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+#loadingHeading {
+  color: var(--text-strong);
 }

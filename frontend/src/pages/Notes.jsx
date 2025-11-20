@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Notes.css";
 import testDb from "./testDB"
 import NoteModal from "../components/NoteModal";
-import CreateNoteModal from "../components/createNoteModal";
+import CreateNoteModal from "../components/CreateNoteModal";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -31,6 +31,22 @@ function Notes() {
         setLoading(false);
     }
 
+    // Update a note in state
+    const handleUpdateNote = (updatedNote) => {
+        setNotes(prev =>
+            prev.map(n => (n.id === updatedNote.id ? updatedNote : n))
+        );
+        setSelectedNote(updatedNote); // keep modal open with new data
+    };
+
+    // Delete a note
+    const handleDeleteNote = async (id) => {
+        await fetch(`${BASE_URL}/notes/${id}`, { method: "DELETE" });
+        setNotes(prev => prev.filter(n => n.id !== id));
+        setSelectedNote(null);
+    };
+
+
     useEffect(() => {
         getNotes();
     }, []);
@@ -40,7 +56,11 @@ function Notes() {
     };
 
     if (loading)
-        return <h2>Loading...</h2>
+        return (
+            <div id="loadingDiv">
+                <h2 id="loadingHeading">Loading...</h2>
+            </div>
+        )
 
     return (
         <div id="pageContainer">
@@ -69,20 +89,21 @@ function Notes() {
                 +
             </button>
 
-            {
-                showCreateModal && (
-                    <CreateNoteModal
-                        onClose={() => setShowCreateModal(false)}
-                        onCreate={handleCreateNote}
-                    />
-                )
-            }
+            {showCreateModal && (
+                <CreateNoteModal
+                    onClose={() => setShowCreateModal(false)}
+                    onCreate={handleCreateNote}
+                />
+            )}
 
-            {
-                selectedNote && (
-                    <NoteModal note={selectedNote} onClose={() => setSelectedNote(null)} />
-                )
-            }
+            {selectedNote && (
+                <NoteModal
+                    note={selectedNote}
+                    onClose={() => setSelectedNote(null)}
+                    onUpdate={handleUpdateNote}
+                    onDelete={handleDeleteNote}
+                />
+            )}
         </div>
     );
 }
