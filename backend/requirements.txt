@@ -8,3 +8,5 @@ asyncpg
 alembic
 python-dotenv
 pytest
+passlib
+python-jose
