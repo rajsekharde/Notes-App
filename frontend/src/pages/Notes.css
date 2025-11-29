@@ -1,0 +1,117 @@
+:root {
+  --bg-main: #f5f9ff;
+  --bg-card: #FFFFFF;
+  --bg-input: #F5F6F8;
+
+  --accent-primary: #2E3A8C;
+  --accent-primary-hover: #232C6D;
+
+  --text-strong: #17191C;
+  --text-medium: #4B4F58;
+  --text-muted: #8D929B;
+
+  --border-light: #E1E4E8;
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background-color: var(--bg-main);
+}
+
+.pageHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--bg-main);
+  padding: 20px 0;
+  box-shadow: 0 2px 6px var(--shadow);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pageTitle {
+  color: var(--accent-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+#notesGridDiv {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+  width: 80vw;
+  margin: 0 auto;
+  padding-top: 120px;
+  padding-bottom: 80px;
+}
+
+.notesCard {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  padding: 18px 20px;
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  cursor: pointer;
+}
+
+.notesCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.notesCard h3 {
+  color: var(--text-strong);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.notesCard p {
+  color: var(--text-medium);
+  margin-bottom: 14px;
+  line-height: 1.35;
+}
+
+.notesCard small {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.floatingButton {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  color: white;
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.floatingButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.08);
+}
+
+#loadingDiv {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+#loadingHeading {
+  color: var(--text-strong);
+}
