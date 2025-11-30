@@ -19,19 +19,18 @@ class Note(NoteBase, table=True):
         default_factory=now_utc,
         sa_column_kwargs={"onupdate": now_utc} # 3
     )
+    owner: Optional["User"] = Relationship(back_populates="notes")
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True) # Auto-incrementing primary key
-    email: str = Field(index=True, unique=True)
-    hashed_password: str
+    email: str = Field(index=True, unique=True, sa_type=sa.String)
+    hashed_password: str = Field(sa_type=sa.String)
     notes: List[Note] = Relationship(back_populates="owner") # Declares a one-to-many relationship
-
-Note.owner = Relationship(back_populates="notes") # Declares a rlationship- a note has a single owner
 
 class RefreshToken(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
-    token: str
+    token: str = Field(sa_type=sa.String)
     expires_at: datetime = Field(default_factory=now_utc)
 
 """

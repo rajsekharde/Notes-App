@@ -8,5 +8,6 @@ asyncpg
 alembic
 python-dotenv
 pytest
-passlib
+passlib[bcrypt]
+passlib[argon2]
 python-jose
