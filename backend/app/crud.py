@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from app.schemas import NoteCreate, NoteRead, NoteUpdate
 from app.models import Note
 from sqlmodel import Session, select
@@ -5,9 +6,10 @@ from sqlmodel import Session, select
 
 def create_note(
         note: NoteCreate,
-        session: Session
+        session: Session,
+        user_id: int
 ):
-    db_note = Note(**note.model_dump()) # To convert pydantic schema to database model *
+    db_note = Note(**note.model_dump(), user_id=user_id) # To convert pydantic schema to database model *
     session.add(db_note) # adds the new note to the database session (not yet written to DB)
     session.commit() # saves changes to the database
     session.refresh(db_note) # reloads the object from the database (gets auto-generated fields like id, created_at)
@@ -20,18 +22,24 @@ def get_note(session: Session, note_id: int) -> Note | None: # Returns Note obje
 
 def read_notes( # **
         session: Session,
+        user_id: int,
         skip: int = 0,
         limit: int = 100
 ):
-    notes = session.exec(select(Note).offset(skip).limit(limit))
+    notes = session.exec(select(Note).where(Note.user_id == user_id).offset(skip).limit(limit))
     return notes.all()
 
 
 def update_note( # ***
         note: NoteUpdate,
         db_note: Note,
-        session: Session
+        session: Session,
+        user_id: int
 ) -> Note:
+    
+    if db_note.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not your note")
+    
     update_dict = note.model_dump(exclude_unset=True)
     for field, value in update_dict.items():
         setattr(db_note, field, value)
@@ -43,8 +51,12 @@ def update_note( # ***
 
 def delete_note(
         db_note: Note,
-        session: Session
+        session: Session,
+        user_id: int
 ):
+    if db_note.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not your note")
+    
     session.delete(db_note) # marks object for deletion
     session.commit() # removes object from database
     return True

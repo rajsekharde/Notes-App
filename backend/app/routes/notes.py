@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from typing import List
+from fastapi import Depends, HTTPException, status
+from app.auth_utils import get_current_user
+from app.models import User
 
 from app.crud import (
     create_note,
@@ -12,7 +15,7 @@ from app.crud import (
 
 from app.database import get_session
 from app.schemas import NoteCreate, NoteRead, NoteUpdate
-from app.models import Note
+from app.models import Note, User
 
 # APIRouter → Creates a group of endpoints (routes) for notes. Helps organize the API.
 router = APIRouter(
@@ -24,25 +27,28 @@ router = APIRouter(
 @router.post("/", response_model=NoteRead, status_code=201) # *
 def create_note_endpoint(
     note: NoteCreate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
-    return create_note(note, session)
+    return create_note(note, session, current_user.id)
 
 
 @router.get("/", response_model=List[NoteRead])
 def read_notes_endpoint(
     session: Session = Depends(get_session),
     skip: int = 0,
-    limit: int = 100
+    limit: int = 100,
+    current_user: User = Depends(get_current_user)
 ):
-    return read_notes(session, skip, limit)
+    return read_notes(session, current_user.id, skip, limit)
 
 
 @router.patch("/{note_id}", response_model=NoteRead) # **
 def update_note_endpoint(
     note_id: int,
     note: NoteUpdate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
     db_note = get_note(session, note_id)
     if not db_note:
@@ -50,13 +56,17 @@ def update_note_endpoint(
             status_code=404,
             detail="Note not found"
         )
-    return update_note(note, db_note, session)
+    if db_note.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this note")
+    
+    return update_note(note, db_note, session, current_user.id)
 
 
 @router.delete("/{note_id}", status_code=204)
 def delete_note_endpoint(
     note_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
     db_note = get_note(session, note_id)
     if not db_note:
@@ -64,7 +74,10 @@ def delete_note_endpoint(
             status_code=404,
             detail="Note not found"
         )
-    delete_note(db_note, session)
+    if db_note.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this note")
+    
+    delete_note(db_note, session, current_user.id)
     return
 
 """
