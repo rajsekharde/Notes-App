@@ -3,6 +3,7 @@ import "./Notes.css";
 import testDb from "./testDB"
 import NoteModal from "../components/NoteModal";
 import CreateNoteModal from "../components/CreateNoteModal"
+import { logoutUser, fetchMe, isLoggedIn } from "../auth/auth";
 
 // test
 
@@ -13,6 +14,7 @@ function Notes() {
     const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     function truncate(text, maxLength) {
         if (!text) return '';
@@ -20,7 +22,7 @@ function Notes() {
     }
 
     async function getNotes() {
-        const response = await fetch(`${BASE_URL}/notes/`);
+        const response = await authFetch(`${BASE_URL}/notes/`);
         if (!response.ok) {
             console.error("Error fetching notes");
             setLoading(false);
@@ -41,13 +43,20 @@ function Notes() {
     };
 
     const handleDeleteNote = async (id) => {
-        await fetch(`${BASE_URL}/notes/${id}`, { method: "DELETE" });
+        await authFetch(`${BASE_URL}/notes/${id}`, { method: "DELETE" });
         setNotes(prev => prev.filter(n => n.id !== id));
         setSelectedNote(null);
     };
 
 
     useEffect(() => {
+        if (!isLoggedIn()) {
+            window.location.href = "/login";
+            return;
+        }
+        fetchMe().then(user => {
+            if (user.is_admin) setIsAdmin(true);
+        });
         getNotes();
     }, []);
 
@@ -66,6 +75,22 @@ function Notes() {
         <div id="pageContainer">
             <header className="pageHeader">
                 <h1 className="pageTitle">Notes App</h1>
+                {isAdmin && (
+                    <button
+                        className="floatingButton"
+                        style={{ position: "relative", width: "auto", padding: "6px 12px" }}
+                        onClick={() => (window.location.href = "/admin")}
+                    >
+                        Admin
+                    </button>
+                )}
+                <button
+                    className="floatingButton"
+                    style={{ position: "relative", width: "auto", padding: "6px 12px" }}
+                    onClick={logoutUser}
+                >
+                    Logout
+                </button>
             </header>
             <div id="notesGridDiv">
                 {notes.map((note) => (

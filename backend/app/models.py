@@ -26,6 +26,7 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True, sa_type=sa.String)
     hashed_password: str = Field(sa_type=sa.String)
     notes: List[Note] = Relationship(back_populates="owner") # Declares a one-to-many relationship
+    is_admin: bool = Field(default=False)
 
 class RefreshToken(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

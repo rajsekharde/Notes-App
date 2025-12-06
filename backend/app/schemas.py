@@ -29,6 +29,7 @@ class UserCreate(SQLModel):
 class UserRead(SQLModel):
     id: int
     email: str
+    is_admin: bool
 
 class UserLogin(SQLModel):
     email: str

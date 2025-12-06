@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './NoteModal.css';
+import { authFetch } from '../auth/auth';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -38,7 +39,7 @@ const NoteModal = ({ note, onClose, onUpdate, onDelete }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${BASE_URL}/notes/${note.id}`, {
+      const response = await authFetch(`${BASE_URL}/notes/${note.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fieldsToUpdate)
