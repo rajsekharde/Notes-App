@@ -15,6 +15,7 @@ from app.security import (
     ACCESS_TOKEN_EXPIRE_MINS,
     REFRESH_TOKEN_EXPIRE_DAYS
 )
+from app.auth_utils import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -65,18 +66,21 @@ def login(credentials: UserLogin, session: Session = Depends(get_session)):
 @router.post("/refresh", response_model=Token)
 def refresh(refresh_token: str, session: Session = Depends(get_session)):
     payload = decode_token(refresh_token)
-
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid Refresh Token")
-    
-    stored = session.exec(select(RefreshToken).where(RefreshToken.token == refresh_token)).first()
 
+    stored = session.exec(select(RefreshToken).where(RefreshToken.token == refresh_token)).first()
     if not stored:
-        raise HTTPException(status_code=401, detail="Token Revoked or Expired")
-    
+        raise HTTPException(status_code=401, detail="Token revoked or expired")
+
     new_access = create_access_token({"sub": payload["sub"]})
 
-    return Token(access_token=new_access)
+    return {
+        "access_token": new_access,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
+
 
 # Logout
 @router.post("/logout")
@@ -88,3 +92,7 @@ def logout(refresh_token: str, session: Session = Depends(get_session)):
         session.commit()
     
     return {"Message": "Logged out successfully"}
+
+@router.get("/me", response_model=UserRead)
+def me(current_user: User = Depends(get_current_user)):
+    return current_user
