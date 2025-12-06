@@ -115,3 +115,58 @@ body {
 #loadingHeading {
   color: var(--text-strong);
 }
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 300px;
+  margin: auto;
+  margin-top: 160px;
+
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  padding: 18px 20px;
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.loginInput {
+  padding: 10px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #111;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#buttonDiv {
+  display: flex;
+  justify-content: center
+}
+
+.loginButton {
+  width: 50%;
+  padding: 8px 0px;
+  margin-top: 40px;
+  background-color: var(--accent-primary);
+  color: white;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+.loginButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.01);
+}
+
+.errorText {
+  color: #ff5555;
+  margin-bottom: 5px;
+  text-align: center;
+}
