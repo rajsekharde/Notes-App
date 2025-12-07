@@ -10,6 +10,8 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        console.log("BASE_URL =", import.meta.env.VITE_API_URL);
+
         const email = e.target.email.value;
         const password = e.target.password.value;
 

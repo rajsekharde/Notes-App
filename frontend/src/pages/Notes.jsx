@@ -82,13 +82,12 @@ function Notes() {
 
             } finally {
                 setLoading(false); // 🔥 finally always runs
+                setAuthReady(true)
             }
         }
 
         initialize();
     }, []);
-
-
 
 
     if (!authReady) {

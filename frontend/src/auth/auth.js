@@ -4,18 +4,13 @@ let accessToken = null;
 accessToken = localStorage.getItem("access_token");
 
 export async function loginUser(email, password) {
-    console.log("Sending login to", `${BASE_URL}/auth/login`);
     const res = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
 
-    console.log("Response status:", res.status);
-    
     const text = await res.text();
-    console.log("RAW response:", text);
-
     if (!res.ok) throw new Error("Invalid credentials");
 
     const data = JSON.parse(text);
@@ -31,8 +26,8 @@ export function logoutUser() {
     if (refresh_token) {
         fetch(`${BASE_URL}/auth/logout`, {
             method: "POST",
-            headers: { "Content-Type": "text/plain" },
-            body: refresh_token,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh_token }),
         });
     }
     accessToken = null;
@@ -47,8 +42,8 @@ async function refreshToken() {
 
     const res = await fetch(`${BASE_URL}/auth/refresh`, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: refresh_token,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token }),
     });
 
     if (!res.ok) return null;
