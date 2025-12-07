@@ -127,7 +127,7 @@ function Notes() {
                     )}
 
                     <button
-                        className="floatingButton"
+                        id="logoutButton"
                         style={{ position: "relative", width: "auto", padding: "6px 12px" }}
                         onClick={logoutUser}
                     >

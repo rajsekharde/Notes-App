@@ -10,14 +10,16 @@ export async function loginUser(email, password) {
         body: JSON.stringify({ email, password }),
     });
 
-    const text = await res.text();
     if (!res.ok) throw new Error("Invalid credentials");
 
-    const data = JSON.parse(text);
+    const data = await res.json();
+
     accessToken = data.access_token;
 
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
+
+    return true;
 }
 
 
@@ -31,9 +33,9 @@ export function logoutUser() {
         });
     }
     accessToken = null;
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("access_token");
+    localStorage.clear();
     window.location.href = "/login";
+    return localStorage.getItem("refresh_token") !== null;
 }
 
 async function refreshToken() {
@@ -55,7 +57,12 @@ async function refreshToken() {
 
 export async function authFetch(url, options = {}) {
     if (!accessToken) {
-        await refreshToken();
+        const newToken = await refreshToken();
+        if (!newToken) {
+            logoutUser();
+            return;
+        }
+        accessToken = newToken;
     }
 
     options.headers = {
@@ -66,12 +73,18 @@ export async function authFetch(url, options = {}) {
     let res = await fetch(url, options);
 
     if (res.status === 401) {
-        await refreshToken();
-        options.headers.Authorization = `Bearer ${accessToken}`;
+        const newToken = await refreshToken();
+        if (!newToken) {
+            logoutUser();
+            return;
+        }
+        options.headers.Authorization = `Bearer ${newToken}`;
         res = await fetch(url, options);
     }
+
     return res;
 }
+
 
 export function isLoggedIn() {
     return localStorage.getItem("refresh_token") !== null;
