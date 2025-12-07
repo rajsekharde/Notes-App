@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Cookie, Response
 from sqlmodel import Session, select
 from datetime import timedelta
 from typing import Annotated
@@ -42,62 +42,104 @@ def register(user: UserCreate, session: Session = Depends(get_session)):
     return new_user
 
 # Login
-@router.post("/login", response_model=Token)
-def login(credentials: UserLogin, session: Session = Depends(get_session)):
+@router.post("/login", response_model=UserRead)
+def login(credentials: UserLogin, response: Response, session: Session = Depends(get_session)):
     user = session.exec(select(User).where(User.email == credentials.email)).first()
 
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid Credentials")
-    
+
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
 
+    # Store refresh token in DB as before
     token_obj = RefreshToken(
         user_id=user.id,
         token=refresh_token,
-        expires_at=now_utc() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at=now_utc() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
     )
-
     session.add(token_obj)
     session.commit()
 
-    return Token(
-        access_token=access_token,
-        refresh_token=refresh_token
+    # Set HTTP-only cookies
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINS * 60,
     )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        samesite="lax",
+        max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600,
+    )
+
+    # Return basic user info, NOT tokens
+    return UserRead.from_orm(user)
 
 # Refresh Token
 @router.post("/refresh", response_model=Token)
-def refresh(data: RefreshTokenRequest, session: Session = Depends(get_session)):
-    refresh_token = data.refresh_token
+def refresh(
+    response: Response,
+    session: Session = Depends(get_session),
+    refresh_token: str | None = Cookie(default=None),
+):
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Missing refresh token")
+
     payload = decode_token(refresh_token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid Refresh Token")
 
-    stored = session.exec(select(RefreshToken).where(RefreshToken.token == refresh_token)).first()
+    stored = session.exec(
+        select(RefreshToken).where(RefreshToken.token == refresh_token)
+    ).first()
     if not stored:
         raise HTTPException(status_code=401, detail="Token revoked or expired")
 
     new_access = create_access_token({"sub": payload["sub"]})
 
+    # update access cookie
+    response.set_cookie(
+        key="access_token",
+        value=new_access,
+        httponly=True,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINS * 60,
+    )
+
     return {
         "access_token": new_access,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
     }
 
 
 # Logout
 @router.post("/logout")
-def logout(data: RefreshTokenRequest, session: Session = Depends(get_session)):
-    refresh_token = data.refresh_token
-    stored = session.exec(select(RefreshToken).where(RefreshToken.token == refresh_token)).first()
+def logout(
+    response: Response,
+    session: Session = Depends(get_session),
+    refresh_token: str | None = Cookie(default=None),
+):
+    # Delete refresh token from DB if present
+    if refresh_token:
+        stored = session.exec(
+            select(RefreshToken).where(RefreshToken.token == refresh_token)
+        ).first()
+        if stored:
+            session.delete(stored)
+            session.commit()
 
-    if stored:
-        session.delete(stored)
-        session.commit()
-    
-    return {"Message": "Logged out successfully"}
+    # Clear cookies
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+
+    return {"message": "Logged out successfully"}
+
 
 @router.get("/me", response_model=UserRead)
 def me(current_user: User = Depends(get_current_user)):

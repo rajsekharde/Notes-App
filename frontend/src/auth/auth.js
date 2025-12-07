@@ -7,87 +7,45 @@ export async function loginUser(email, password) {
     const res = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // <-- send/receive cookies
         body: JSON.stringify({ email, password }),
     });
 
     if (!res.ok) throw new Error("Invalid credentials");
 
-    const data = await res.json();
-
-    accessToken = data.access_token;
-
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("refresh_token", data.refresh_token);
-
+    // you can read the user if needed:
+    // const user = await res.json();
     return true;
 }
 
 
-export function logoutUser() {
-    const refresh_token = localStorage.getItem("refresh_token");
-    if (refresh_token) {
-        fetch(`${BASE_URL}/auth/logout`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token }),
-        });
-    }
-    accessToken = null;
-    localStorage.clear();
-    window.location.href = "/login";
-    return localStorage.getItem("refresh_token") !== null;
-}
-
-async function refreshToken() {
-    const refresh_token = localStorage.getItem("refresh_token");
-    if (!refresh_token) return null;
-
-    const res = await fetch(`${BASE_URL}/auth/refresh`, {
+export async function logoutUser() {
+    await fetch(`${BASE_URL}/auth/logout`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token }),
+        credentials: "include",
     });
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    accessToken = data.access_token;
-    return accessToken;
+    window.location.href = "/login";
 }
 
 export async function authFetch(url, options = {}) {
-    if (!accessToken) {
-        const newToken = await refreshToken();
-        if (!newToken) {
-            logoutUser();
-            return;
-        }
-        accessToken = newToken;
-    }
-
-    options.headers = {
-        ...(options.headers || {}),
-        Authorization: `Bearer ${accessToken}`,
-    };
-
-    let res = await fetch(url, options);
+    let res = await fetch(url, {
+        ...options,
+        credentials: "include", // <-- REQUIRED
+    });
 
     if (res.status === 401) {
-        const newToken = await refreshToken();
-        if (!newToken) {
-            logoutUser();
-            return;
-        }
-        options.headers.Authorization = `Bearer ${newToken}`;
-        res = await fetch(url, options);
+        window.location.href = "/login";
+        return;
     }
 
     return res;
 }
 
 
+
 export function isLoggedIn() {
-    return localStorage.getItem("refresh_token") !== null;
+    // You SHOULD NOT trust this for anything serious anymore.
+    return false;
 }
 
 export async function fetchMe() {

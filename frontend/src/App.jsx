@@ -1,17 +1,41 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-//import './App.css'
-import NotesTemp from './pages/NotesTemp'
+// App.jsx
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Notes from './pages/Notes'
-import { isLoggedIn } from './auth/auth'
 import Login from './pages/Login'
-import { Navigate } from "react-router-dom";
+import { fetchMe } from './auth/auth'
+
+function ProtectedRoute({ children }) {
+  const [status, setStatus] = useState("loading"); // "loading" | "authed" | "guest"
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function checkAuth() {
+      try {
+        await fetchMe();
+        if (isMounted) setStatus("authed");
+      } catch {
+        if (isMounted) setStatus("guest");
+      }
+    }
+
+    checkAuth();
+    return () => { isMounted = false; };
+  }, []);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "guest") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <BrowserRouter>
       <Routes>
@@ -19,7 +43,11 @@ function App() {
 
         <Route
           path="/notes"
-          element={isLoggedIn() ? <Notes /> : <Navigate to="/login" />}
+          element={
+            <ProtectedRoute>
+              <Notes />
+            </ProtectedRoute>
+          }
         />
 
         <Route path="*" element={<Navigate to="/login" />} />

@@ -59,10 +59,6 @@ function Notes() {
 
         async function initialize() {
             try {
-                if (!isLoggedIn()) {
-                    logoutUser();
-                    return;
-                }
 
                 const user = await fetchMe();
                 setIsAdmin(user.is_admin === true);
