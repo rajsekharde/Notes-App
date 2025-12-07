@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from datetime import timedelta
 from typing import Annotated
+from pydantic import BaseModel
 
 from app.database import get_session
 from app.models import User, RefreshToken, now_utc
@@ -18,6 +19,9 @@ from app.security import (
 from app.auth_utils import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 # Register
 @router.post("/register", response_model=UserRead)
@@ -64,7 +68,8 @@ def login(credentials: UserLogin, session: Session = Depends(get_session)):
 
 # Refresh Token
 @router.post("/refresh", response_model=Token)
-def refresh(refresh_token: str, session: Session = Depends(get_session)):
+def refresh(data: RefreshTokenRequest, session: Session = Depends(get_session)):
+    refresh_token = data.refresh_token
     payload = decode_token(refresh_token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid Refresh Token")
@@ -84,7 +89,8 @@ def refresh(refresh_token: str, session: Session = Depends(get_session)):
 
 # Logout
 @router.post("/logout")
-def logout(refresh_token: str, session: Session = Depends(get_session)):
+def logout(data: RefreshTokenRequest, session: Session = Depends(get_session)):
+    refresh_token = data.refresh_token
     stored = session.exec(select(RefreshToken).where(RefreshToken.token == refresh_token)).first()
 
     if stored:

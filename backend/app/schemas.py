@@ -29,7 +29,7 @@ class UserCreate(SQLModel):
 class UserRead(SQLModel):
     id: int
     email: str
-    is_admin: bool
+    is_admin: bool = False
 
 class UserLogin(SQLModel):
     email: str

@@ -7,6 +7,7 @@ import NotesTemp from './pages/NotesTemp'
 import Notes from './pages/Notes'
 import { isLoggedIn } from './auth/auth'
 import Login from './pages/Login'
+import { Navigate } from "react-router-dom";
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,9 +15,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/notesTemp' element={<NotesTemp />} />
-        <Route path='/notes' element={<Notes />} />
-        <Route path='/login' element={<Login />} />
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/notes"
+          element={isLoggedIn() ? <Notes /> : <Navigate to="/login" />}
+        />
+
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   )

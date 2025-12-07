@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
+import { useRef } from "react";
 import "./Notes.css";
 import testDb from "./testDB"
 import NoteModal from "../components/NoteModal";
 import CreateNoteModal from "../components/CreateNoteModal"
-import { logoutUser, fetchMe, isLoggedIn } from "../auth/auth";
+import { logoutUser, fetchMe, isLoggedIn, authFetch } from "../auth/auth";
 
 // test
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Notes() {
+    const initialized = useRef(false);
+
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [authReady, setAuthReady] = useState(false);
 
     function truncate(text, maxLength) {
         if (!text) return '';
@@ -50,15 +54,51 @@ function Notes() {
 
 
     useEffect(() => {
-        if (!isLoggedIn()) {
-            window.location.href = "/login";
-            return;
+        if (initialized.current) return;
+        initialized.current = true;
+
+        async function initialize() {
+            try {
+                if (!isLoggedIn()) {
+                    logoutUser();
+                    return;
+                }
+
+                const user = await fetchMe();
+                setIsAdmin(user.is_admin === true);
+
+                const res = await authFetch(`${BASE_URL}/notes/`);
+                const data = await res.json();
+
+                const sorted = [...data].sort(
+                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                );
+
+                setNotes(sorted);
+
+            } catch (err) {
+                console.error("Auth failed:", err);
+                logoutUser();
+
+            } finally {
+                setLoading(false); // 🔥 finally always runs
+            }
         }
-        fetchMe().then(user => {
-            if (user.is_admin) setIsAdmin(true);
-        });
-        getNotes();
+
+        initialize();
     }, []);
+
+
+
+
+    if (!authReady) {
+        return (
+            <div id="loadingDiv">
+                <h2 id="loadingHeading">Loading...</h2>
+            </div>
+        );
+    }
+
 
     const handleCreateNote = (newNote) => {
         setNotes([newNote, ...notes]);
@@ -75,22 +115,26 @@ function Notes() {
         <div id="pageContainer">
             <header className="pageHeader">
                 <h1 className="pageTitle">Notes App</h1>
-                {isAdmin && (
+
+                <div style={{ display: "flex", gap: "12px" }}>
+                    {isAdmin && (
+                        <button
+                            className="floatingButton"
+                            style={{ position: "relative", width: "auto", padding: "6px 12px" }}
+                            onClick={() => (window.location.href = "/admin")}
+                        >
+                            Admin
+                        </button>
+                    )}
+
                     <button
                         className="floatingButton"
                         style={{ position: "relative", width: "auto", padding: "6px 12px" }}
-                        onClick={() => (window.location.href = "/admin")}
+                        onClick={logoutUser}
                     >
-                        Admin
+                        Logout
                     </button>
-                )}
-                <button
-                    className="floatingButton"
-                    style={{ position: "relative", width: "auto", padding: "6px 12px" }}
-                    onClick={logoutUser}
-                >
-                    Logout
-                </button>
+                </div>
             </header>
             <div id="notesGridDiv">
                 {notes.map((note) => (

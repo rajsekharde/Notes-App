@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { loginUser } from "../auth/auth";
+import { useNavigate } from "react-router-dom";
 import "./Notes.css";
 
 export default function Login() {
+    const navigate = useNavigate();
     const [mode, setMode] = useState("login");
     const [error, setError] = useState("");
 
@@ -10,6 +12,8 @@ export default function Login() {
         e.preventDefault();
         const email = e.target.email.value;
         const password = e.target.password.value;
+
+        console.log("Submitting login…", email, password);
 
         if (mode === "register") {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
@@ -29,7 +33,7 @@ export default function Login() {
 
         try {
             await loginUser(email, password);
-            window.location.href = "/notes";
+            navigate("/notes");
         } catch {
             setError("Invalid email or password");
         }
