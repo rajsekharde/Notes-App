@@ -26,6 +26,8 @@ services:
     build: ./backend
     container_name: notes_backend
     restart: always
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     depends_on:
       db:
         condition: service_healthy
@@ -41,15 +43,6 @@ services:
       - ./backend:/app
     networks:
       - app-network
-    command: >
-      sh -c "
-        until pg_isready -h db -p 5432 -U ${POSTGRES_USER}; do
-          echo 'Waiting for Postgres...';
-          sleep 2;
-        done;
-        echo 'Postgres is up - starting backend';
-        uvicorn main:app --host 0.0.0.0 --port 8000
-      "
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:${BACKEND_PORT}/health || exit 1" ]
       interval: 5s
