@@ -252,3 +252,60 @@ body {
 #registerParagraph:hover {
   transform: scale(1.03);
 }
+
+#usersTableDiv {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+.userTable {
+  width: 70%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.userTable th,
+.userTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: #232C6D;
+}
+
+.userTable th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.status-active {
+  color: #1DBF73;
+  font-weight: bold;
+}
+
+.status-offline {
+  color: #FF4D4D;
+  font-weight: bold;
+}
+
+.action-btn {
+  margin-right: 8px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.action-btn.warning {
+  background-color: #FFC107;
+  color: black;
+}
+
+.action-btn.danger {
+  background-color: #DC3545;
+  color: white;
+}
+
+.action-btn.warning:disabled {
+    opacity: 0.5;
+}

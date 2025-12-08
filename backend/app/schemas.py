@@ -31,6 +31,12 @@ class UserRead(SQLModel):
     email: str
     is_admin: bool = False
 
+class UserReadDashB(SQLModel):
+    id: int
+    email: str
+    is_admin: bool = False
+    is_logged_in: bool = False
+
 class UserLogin(SQLModel):
     email: str
     password: str

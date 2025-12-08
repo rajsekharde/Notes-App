@@ -3,10 +3,11 @@ from sqlmodel import Session, select
 from datetime import timedelta
 from typing import Annotated
 from pydantic import BaseModel
+from datetime import datetime
 
 from app.database import get_session
-from app.models import User, RefreshToken, now_utc
-from app.schemas import UserCreate, UserRead, UserLogin, Token
+from app.models import User, RefreshToken, now_utc, Note
+from app.schemas import UserCreate, UserRead, UserLogin, Token, UserReadDashB
 from app.security import (
     hash_password,
     verify_password,
@@ -146,14 +147,79 @@ def me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
+
 def require_admin(current_user: User = Depends(get_current_user)):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admins only")
     return current_user
 
-@router.get("/users", response_model=list[UserRead])
+
+@router.get("/users", response_model=list[UserReadDashB])
 def get_users(
     session: Session = Depends(get_session),
     admin: User = Depends(require_admin)
 ):
-    return session.exec(select(User)).all()
+    users = session.exec(select(User)).all()
+    now = datetime.utcnow()
+
+    results = []
+    for u in users:
+        active_tokens = session.exec(
+            select(RefreshToken).where(
+                RefreshToken.user_id == u.id,
+                RefreshToken.expires_at > now
+            )
+        ).all()
+
+        user_data = UserReadDashB(
+            id=u.id,
+            email=u.email,
+            is_admin=u.is_admin,
+            is_logged_in=len(active_tokens) > 0
+        )
+        results.append(user_data)
+
+    return results
+
+@router.post("/logout_user/{user_id}")
+def logout_user(
+    user_id: int,
+    admin: User = Depends(require_admin),
+    session: Session = Depends(get_session)
+):
+    tokens = session.exec(
+        select(RefreshToken).where(RefreshToken.user_id == user_id)
+    ).all()
+
+    for t in tokens:
+        session.delete(t)
+
+    session.commit()
+    return {"message": "User logged out everywhere"}
+
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    admin: User = Depends(require_admin),
+    session: Session = Depends(get_session)
+):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    tokens = session.exec(
+        select(RefreshToken).where(RefreshToken.user_id == user_id)
+    ).all()
+    for t in tokens:
+        session.delete(t)
+    
+    notes = session.exec(
+        select(Note).where(Note.user_id == user_id)
+    ).all()
+    for note in notes:
+        session.delete(note)
+
+    session.delete(user)
+    session.commit()
+    return {"message": "User deleted"}

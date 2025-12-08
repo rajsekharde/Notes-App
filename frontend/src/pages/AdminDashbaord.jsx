@@ -14,7 +14,7 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function initializeAdmin() {
             try {
-                const user = await fetchMe(); // FIX 1: use fetchMe
+                const user = await fetchMe();
 
                 if (!user.is_admin) {
                     window.location.href = "/notes";
@@ -25,18 +25,33 @@ export default function AdminDashboard() {
 
                 const res = await authFetch(`${BASE_URL}/auth/users`);
                 const data = await res.json();
+                //console.log(data);
                 setUsers(data);
 
             } catch (err) {
                 window.location.href = "/login";
             } finally {
-                setAuthReady(true); // FIX 2: allow page to render
+                setAuthReady(true);
             }
         }
 
         initializeAdmin();
     }, []);
 
+
+    async function remoteLogout(id) {
+        await authFetch(`${BASE_URL}/auth/logout_user/${id}`, { method: "POST" });
+        const res = await authFetch(`${BASE_URL}/auth/users`);
+        const data = await res.json();
+        setUsers(data);
+        alert("User logged out");
+    }
+
+    async function deleteUser(id) {
+        if (!window.confirm("Delete this user?")) return;
+        await authFetch(`${BASE_URL}/auth/users/${id}`, { method: "DELETE" });
+        setUsers(prev => prev.filter(u => u.id !== id));
+    }
 
 
 
@@ -65,15 +80,48 @@ export default function AdminDashboard() {
                 <h1 className="pageTitle">Admin Dashboard</h1>
             </header>
 
-            <div id="notesGridDiv">
-                {users.map(user => (
-                    <div key={user.id} className="notesCard">
-                        <h3>{user.email}</h3>
-                        <small>ID: {user.id}</small><br />
-                        <small>{user.is_admin ? "Admin" : "User"}</small>
-                    </div>
-                ))}
+            <div id="usersTableDiv">
+                <table className="userTable">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th style={{ width: "200px" }}>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {users.map(user => (
+                            <tr key={user.id}>
+                                <td>{user.email}</td>
+                                <td>{user.is_admin ? "Admin" : "User"}</td>
+                                <td>
+                                    <span className={user.is_logged_in ? "status-active" : "status-offline"}>
+                                        {user.is_logged_in ? "Online" : "Offline"}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button
+                                        className="action-btn warning"
+                                        onClick={() => remoteLogout(user.id)}
+                                        disabled={!user.is_logged_in}
+                                    >
+                                        Force Logout
+                                    </button>
+
+                                    <button
+                                        className="action-btn danger"
+                                        onClick={() => deleteUser(user.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
+
             <button
                 id="notesButton"
                 onClick={() => (navigate("/notes"))}
