@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINS: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
 
+    ADMIN_PASSWORD: str
+
     class Config:
         env_file = ".env"
 

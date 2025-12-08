@@ -17,7 +17,7 @@ const EditNoteModal = ({ onClose, onCreate }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${BASE_URL}/notes/`, {
+      const response = await authFetch(`${BASE_URL}/notes/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './NoteModal.css';
+import { authFetch } from '../auth/auth';
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const CreateNoteModal = ({ onClose, onCreate }) => {
@@ -24,7 +25,7 @@ const CreateNoteModal = ({ onClose, onCreate }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${BASE_URL}/notes/`, {
+      const response = await authFetch(`${BASE_URL}/notes/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

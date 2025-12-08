@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routes.notes import router as notes_router
+from app.routes.auth import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -16,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(notes_router) # Add all the routes from notes_router into this main app
+app.include_router(auth_router)
 
 @app.get("/")
 def root():

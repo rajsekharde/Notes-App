@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
+import { useRef } from "react";
 import "./Notes.css";
 import testDb from "./testDB"
 import NoteModal from "../components/NoteModal";
 import CreateNoteModal from "../components/CreateNoteModal"
-
-// test
+import { logoutUser, fetchMe, isLoggedIn, authFetch } from "../auth/auth";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Notes() {
+    const initialized = useRef(false);
+    const navigate = useNavigate();
+
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [authReady, setAuthReady] = useState(false);
 
     function truncate(text, maxLength) {
         if (!text) return '';
@@ -20,7 +26,7 @@ function Notes() {
     }
 
     async function getNotes() {
-        const response = await fetch(`${BASE_URL}/notes/`);
+        const response = await authFetch(`${BASE_URL}/notes/`);
         if (!response.ok) {
             console.error("Error fetching notes");
             setLoading(false);
@@ -41,15 +47,53 @@ function Notes() {
     };
 
     const handleDeleteNote = async (id) => {
-        await fetch(`${BASE_URL}/notes/${id}`, { method: "DELETE" });
+        await authFetch(`${BASE_URL}/notes/${id}`, { method: "DELETE" });
         setNotes(prev => prev.filter(n => n.id !== id));
         setSelectedNote(null);
     };
 
 
     useEffect(() => {
-        getNotes();
+        if (initialized.current) return;
+        initialized.current = true;
+
+        async function initialize() {
+            try {
+
+                const user = await fetchMe();
+                setIsAdmin(user.is_admin === true);
+
+                const res = await authFetch(`${BASE_URL}/notes/`);
+                const data = await res.json();
+
+                const sorted = [...data].sort(
+                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                );
+
+                setNotes(sorted);
+
+            } catch (err) {
+                console.error("Auth failed:", err);
+                logoutUser();
+
+            } finally {
+                setLoading(false); // 🔥 finally always runs
+                setAuthReady(true)
+            }
+        }
+
+        initialize();
     }, []);
+
+
+    if (!authReady) {
+        return (
+            <div id="loadingDiv">
+                <h2 id="loadingHeading">Loading...</h2>
+            </div>
+        );
+    }
+
 
     const handleCreateNote = (newNote) => {
         setNotes([newNote, ...notes]);
@@ -66,6 +110,10 @@ function Notes() {
         <div id="pageContainer">
             <header className="pageHeader">
                 <h1 className="pageTitle">Notes App</h1>
+
+                <div style={{ display: "flex", gap: "12px" }}>
+
+                </div>
             </header>
             <div id="notesGridDiv">
                 {notes.map((note) => (
@@ -87,6 +135,21 @@ function Notes() {
                 className="floatingButton"
                 onClick={() => setShowCreateModal(true)}>
                 +
+            </button>
+            {isAdmin && (
+                <button
+                    id="adminButton"
+                    onClick={() => (navigate("/admin"))}
+                >
+                    Admin
+                </button>
+            )}
+
+            <button
+                id="logoutButton"
+                onClick={logoutUser}
+            >
+                Logout
             </button>
 
             {showCreateModal && (
