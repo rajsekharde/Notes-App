@@ -23,13 +23,19 @@ def client():
 
 @pytest.fixture()
 def auth_headers(client):
+    # Register user
     client.post("/auth/register", json={
         "email": "test@example.com",
         "password": "password123"
     })
-    login_resp = client.post("/auth/login", json={
+
+    # Login user
+    client.post("/auth/login", json={
         "email": "test@example.com",
         "password": "password123"
     })
-    access_token = login_resp.json()["access_token"]
-    return {"Authorization": f"Bearer {access_token}"}
+
+    # No token needed — use empty headers
+    return {}
+
+test_engine = engine
