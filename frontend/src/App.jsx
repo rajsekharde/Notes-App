@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Notes from './pages/Notes'
 import Login from './pages/Login'
 import { fetchMe } from './auth/auth'
+import AdminDashboard from './pages/AdminDashbaord'
 
 function ProtectedRoute({ children }) {
   const [status, setStatus] = useState("loading"); // "loading" | "authed" | "guest"
@@ -46,6 +47,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Notes />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />

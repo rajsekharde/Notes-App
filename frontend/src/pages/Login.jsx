@@ -57,12 +57,8 @@ export default function Login() {
                     </button>
                 </div>
                 <p
-                    style={{
-                        textAlign: "center",
-                        marginTop: "10px",
-                        cursor: "pointer",
-                        color: "#232C6D",
-                    }}
+                    id="registerParagraph"
+                    className="registerParagraph"
                     onClick={() => {
                         setError("");
                         setMode(mode === "login" ? "register" : "login");

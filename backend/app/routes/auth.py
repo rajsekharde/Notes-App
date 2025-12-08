@@ -144,3 +144,16 @@ def logout(
 @router.get("/me", response_model=UserRead)
 def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+def require_admin(current_user: User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admins only")
+    return current_user
+
+@router.get("/users", response_model=list[UserRead])
+def get_users(
+    session: Session = Depends(get_session),
+    admin: User = Depends(require_admin)
+):
+    return session.exec(select(User)).all()

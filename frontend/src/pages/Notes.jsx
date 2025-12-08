@@ -5,13 +5,13 @@ import testDb from "./testDB"
 import NoteModal from "../components/NoteModal";
 import CreateNoteModal from "../components/CreateNoteModal"
 import { logoutUser, fetchMe, isLoggedIn, authFetch } from "../auth/auth";
-
-// test
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Notes() {
     const initialized = useRef(false);
+    const navigate = useNavigate();
 
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -112,23 +112,7 @@ function Notes() {
                 <h1 className="pageTitle">Notes App</h1>
 
                 <div style={{ display: "flex", gap: "12px" }}>
-                    {isAdmin && (
-                        <button
-                            className="floatingButton"
-                            style={{ position: "relative", width: "auto", padding: "6px 12px" }}
-                            onClick={() => (window.location.href = "/admin")}
-                        >
-                            Admin
-                        </button>
-                    )}
 
-                    <button
-                        id="logoutButton"
-                        style={{ position: "relative", width: "auto", padding: "6px 12px" }}
-                        onClick={logoutUser}
-                    >
-                        Logout
-                    </button>
                 </div>
             </header>
             <div id="notesGridDiv">
@@ -151,6 +135,21 @@ function Notes() {
                 className="floatingButton"
                 onClick={() => setShowCreateModal(true)}>
                 +
+            </button>
+            {isAdmin && (
+                <button
+                    id="adminButton"
+                    onClick={() => (navigate("/admin"))}
+                >
+                    Admin
+                </button>
+            )}
+
+            <button
+                id="logoutButton"
+                onClick={logoutUser}
+            >
+                Logout
             </button>
 
             {showCreateModal && (

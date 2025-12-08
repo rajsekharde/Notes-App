@@ -84,7 +84,7 @@ body {
 
 .floatingButton {
   position: fixed;
-  bottom: 32px;
+  bottom: 122px;
   right: 32px;
   width: 58px;
   height: 58px;
@@ -160,6 +160,7 @@ body {
   margin-bottom: 10px;
   transition: transform 0.15s ease, background-color 0.2s ease;
 }
+
 .loginButton:hover {
   background-color: var(--accent-primary-hover);
   transform: scale(1.01);
@@ -169,4 +170,85 @@ body {
   color: #ff5555;
   margin-bottom: 5px;
   text-align: center;
+}
+
+#logoutButton {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+#logoutButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.08);
+}
+
+#adminButton {
+  position: fixed;
+  bottom: 212px;
+  right: 32px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+#adminButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.08);
+}
+
+#notesButton {
+  position: fixed;
+  bottom: 122px;
+  right: 32px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+#notesButton:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.08);
+}
+
+#registerParagraph {
+  text-align: center;
+  margin-top: 10px;
+  cursor: pointer;
+  color: #232C6D;
+  transition: transform 0.15s ease
+}
+
+#registerParagraph:hover {
+  transform: scale(1.03);
 }
