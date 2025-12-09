@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(notes_router) # Add all the routes from notes_router into this main app
+app.include_router(notes_router)
 app.include_router(auth_router)
 
 @app.get("/")
