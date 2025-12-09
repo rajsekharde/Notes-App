@@ -3,7 +3,14 @@ from app.routes.notes import router as notes_router
 from app.routes.auth import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+#app = FastAPI() # local deployment
+
+# when using traefik
+app = FastAPI(
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
+)
+
 
 origins = [
     "http://localhost",
