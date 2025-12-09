@@ -7,14 +7,12 @@ export async function loginUser(email, password) {
     const res = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // <-- send/receive cookies
+        credentials: "include",
         body: JSON.stringify({ email, password }),
     });
 
     if (!res.ok) throw new Error("Invalid credentials");
 
-    // you can read the user if needed:
-    // const user = await res.json();
     return true;
 }
 
@@ -30,7 +28,7 @@ export async function logoutUser() {
 export async function authFetch(url, options = {}) {
     let res = await fetch(url, {
         ...options,
-        credentials: "include", // <-- REQUIRED
+        credentials: "include",
     });
 
     if (res.status === 401) {
@@ -44,7 +42,6 @@ export async function authFetch(url, options = {}) {
 
 
 export function isLoggedIn() {
-    // You SHOULD NOT trust this for anything serious anymore.
     return false;
 }
 

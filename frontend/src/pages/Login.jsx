@@ -10,12 +10,12 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        console.log("BASE_URL =", import.meta.env.VITE_API_URL);
+        //console.log("BASE_URL =", import.meta.env.VITE_API_URL);
 
         const email = e.target.email.value;
         const password = e.target.password.value;
 
-        console.log("Submitting login…", email, password);
+        //console.log("Submitting login…", email, password);
 
         if (mode === "register") {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {

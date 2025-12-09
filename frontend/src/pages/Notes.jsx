@@ -77,7 +77,7 @@ function Notes() {
                 logoutUser();
 
             } finally {
-                setLoading(false); // 🔥 finally always runs
+                setLoading(false);
                 setAuthReady(true)
             }
         }
