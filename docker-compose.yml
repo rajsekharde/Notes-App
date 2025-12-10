@@ -55,15 +55,13 @@ services:
       timeout: 5s
       retries: 5
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.routers.backend.priority=10"
-      - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.service=backend-service"
       - "traefik.http.services.backend-service.loadbalancer.server.port=8000"
       - "traefik.http.middlewares.stripapi.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=stripapi"
-      - "traefik.http.routers.backend.tls=true"
-      - "traefik.http.routers.backend.tls.certresolver=myresolver"
 
 
   frontend:
@@ -78,12 +76,10 @@ services:
     networks:
       - app-network
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.services.frontend-service.loadbalancer.server.port=80"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
 
 
 networks:

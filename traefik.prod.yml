@@ -3,26 +3,25 @@ services:
     command:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-
       - "--entrypoints.websecure.address=:443"
-
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=rajsekharde612@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
 
-      - "--log.level=INFO"
-
     ports:
       - "80:80"
       - "443:443"
-
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - traefik_letsencrypt:/letsencrypt
 
-volumes:
-  traefik_letsencrypt:
+  backend:
+    labels:
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+
+  frontend:
+    labels:
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
