@@ -6,11 +6,5 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "8080:80"
-
-  backend:
-    labels:
-      - "traefik.http.routers.backend.entrypoints=web"
-
-  frontend:
-    labels:
-      - "traefik.http.routers.frontend.entrypoints=web"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
