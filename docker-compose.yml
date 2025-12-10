@@ -88,3 +88,4 @@ networks:
 
 volumes:
   pgdata:
+  traefik_letsencrypt:
