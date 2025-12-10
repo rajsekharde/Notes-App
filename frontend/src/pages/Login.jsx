@@ -11,6 +11,7 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setLoading(true);
         //console.log("BASE_URL =", import.meta.env.VITE_API_URL);
 
         const email = e.target.email.value;
@@ -37,7 +38,6 @@ export default function Login() {
 
             return;
         }
-        setLoading(true);
 
         try {
             await loginUser(email, password);

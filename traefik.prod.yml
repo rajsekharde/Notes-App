@@ -14,6 +14,19 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt:/letsencrypt
+  
+  backend:
+    labels:
+      - "traefik.http.routers.backend.rule=Host(`notes-app.rajsekharde.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+
+  frontend:
+    labels:
+      - "traefik.http.routers.frontend.rule=Host(`notes-app.rajsekharde.com`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+
 
 volumes:
   letsencrypt:

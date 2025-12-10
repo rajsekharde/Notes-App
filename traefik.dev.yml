@@ -8,3 +8,11 @@ services:
       - "8080:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  
+  backend:
+    labels:
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+  
+  frontend:
+    labels:
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
