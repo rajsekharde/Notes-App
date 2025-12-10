@@ -19,6 +19,7 @@ This is a fully containerized full-stack Notes Application built using:
 - Dockerized frontend and backend
 - Automatic Alembic migrations
 - Production-ready architecture
+- Deployed using AWS EC2
 
 ---
 
@@ -29,8 +30,30 @@ Make sure Docker Desktop is running.
 
 ### 2. Start the whole stack
 
+Create a .env file in root project folder.
+Add the following variables:
 ```bash
-docker compose up --build -d
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+POSTGRES_DB=notes_db
+
+SECRET_KEY=any_random_string
+
+ACCESS_TOKEN_EXPIRE_MINS=10
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+ADMIN_PASSWORD=12345 # Use it to login using Admin Email- MainAdmin@mail.com
+
+DATABASE_URL=postgresql+psycopg2://username:password@db:5432/notes_db
+
+FRONTEND_URL=http://localhost
+
+BACKEND_PORT=8000
+```
+
+Then run in root folder terminal:
+```bash
+docker compose -f docker-compose.yml -f traefik.dev.yml up --build -d
 ```
 
 ### 3. Access the App
@@ -47,12 +70,60 @@ To stop everything:
 docker compose down --volumes
 ```
 
+## Deploying to AWS EC2 Instance:
+Launch an EC2 instance with Ubuntu 22.04
+Add a new DNS record to your domain:
+```bash
+Type: A
+Content: <Public IPv4 address of ec2 Instance>
+```
+Clone repository
+Change .yml scripts to include your sub-domain name and email.
+
+SSH into the instance
+Install docker, docker-compose, git
+Make a new directory:
+```bash
+mkdir Notes-App
+cd Notes-App
+```
+Clone Git repo to ec2 instance:
+```bash
+git clone https://github.com/rajsekharde/Notes-App.git
+cd Notes-App
+```
+Create .env file:
+```bash
+nano .env
+```
+Create the same environment variables mentioned in the beginning.
+Then:
+```bash
+Ctrl + O
+Enter
+Ctrl + X
+```
+Build docker containers:
+```bash
+docker compose -f docker-compose.yml -f traefik.prod.yml up --build -d
+```
+Check status of containers & backend logs:
+```bash
+docker ps
+docker logs -f notes_backend
+```
+To stop the containers:
+```bash
+docker compose down
+```
+
 ## Project Structure
 /frontend     → React app (served by Nginx)
- /backend     → FastAPI app
- /db          → PostgreSQL data (persisted via Docker volumes)
- /alembic     → Database migrations
- docker-compose.yml
+/backend     → FastAPI app
+docker-compose.yml
+traefik.dev.yml
+traefik.prod.yml
+.env
 
 ## Technologies
 

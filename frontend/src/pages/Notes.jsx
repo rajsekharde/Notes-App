@@ -18,25 +18,10 @@ function Notes() {
     const [selectedNote, setSelectedNote] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [authReady, setAuthReady] = useState(false);
 
     function truncate(text, maxLength) {
         if (!text) return '';
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-    }
-
-    async function getNotes() {
-        const response = await authFetch(`${BASE_URL}/notes/`);
-        if (!response.ok) {
-            console.error("Error fetching notes");
-            setLoading(false);
-            setNotes(testDb);
-            return;
-        }
-        const data = await response.json();
-        const sortedNotes = [...data].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-        setNotes(sortedNotes);
-        setLoading(false);
     }
 
     const handleUpdateNote = (updatedNote) => {
@@ -78,21 +63,11 @@ function Notes() {
 
             } finally {
                 setLoading(false);
-                setAuthReady(true)
             }
         }
 
         initialize();
     }, []);
-
-
-    if (!authReady) {
-        return (
-            <div id="loadingDiv">
-                <h2 id="loadingHeading">Loading...</h2>
-            </div>
-        );
-    }
 
 
     const handleCreateNote = (newNote) => {
