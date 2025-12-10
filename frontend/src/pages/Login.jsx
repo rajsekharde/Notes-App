@@ -7,6 +7,7 @@ export default function Login() {
     const navigate = useNavigate();
     const [mode, setMode] = useState("login");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -26,25 +27,40 @@ export default function Login() {
 
             if (!res.ok) {
                 setError("Registration failed. Try a different email.");
+                setLoading(false);
                 return;
             }
+
             alert("Registration successful! Please login.");
+            e.target.reset();
             setMode("login");
+
             return;
         }
+        setLoading(true);
 
         try {
             await loginUser(email, password);
+            e.target.reset();
+            setLoading(false);
             navigate("/notes");
         } catch {
             setError("Invalid email or password");
+            setLoading(false);
         }
+    }
+    if (loading) {
+        return (
+            <div id="loadingDiv">
+                <h2 id="loadingHeading">Loading...</h2>
+            </div>
+        );
     }
 
     return (
         <div id="pageContainer">
             <header className="pageHeader">
-                <h1 className="pageTitle">{mode === "login" ? "Login" : "Register"}</h1>
+                <h1 className="pageTitle">Notes App</h1>
             </header>
 
             <form id="loginForm" onSubmit={handleSubmit}>
@@ -62,6 +78,7 @@ export default function Login() {
                     onClick={() => {
                         setError("");
                         setMode(mode === "login" ? "register" : "login");
+                        document.getElementById("loginForm").reset();
                     }}
                 >
                     {mode === "login"
