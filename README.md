@@ -1,4 +1,4 @@
-# Notes App — Full Stack (FastAPI + React + PostgreSQL + Docker + Traefik)
+# Full Stack Notes App (FastAPI + React + PostgreSQL + Docker + Traefik)
 
 This is a fully containerized full-stack Notes Application built using:
 
@@ -12,6 +12,18 @@ This is a fully containerized full-stack Notes Application built using:
 ---
 
 Live Deployment: https://notes-app.rajsekharde.com
+
+## Architecture Diagram:
+<img src="./media/architecture_diagram.png" width="500"/>
+
+## Login Page:
+<img src="./media/login_page.png" width="500"/>
+
+## Notes Page:
+<img src="./media/notes_page.png" width="500"/>
+
+## Admin Dashbaord:
+<img src="./media/admin_dashboard.png" width="500"/>
 
 ---
 
@@ -99,7 +111,7 @@ mkdir Notes-App
 cd Notes-App
 ```
 
-Clone Git repo to ec2 instance:
+Clone Git repo to EC2 instance:
 ```bash
 git clone https://github.com/rajsekharde/Notes-App.git
 cd Notes-App
@@ -121,6 +133,8 @@ Build docker containers:
 ```bash
 docker compose -f docker-compose.yml -f traefik.prod.yml up --build -d
 ```
+
+Open your URL in a browser
 
 Check status of containers & backend logs:
 ```bash
