@@ -11,15 +11,19 @@ This is a fully containerized full-stack Notes Application built using:
 
 ---
 
+Live Deployment: https://notes-app.rajsekharde.com
+
+---
+
 ## Features
-- User authentication (with refresh tokens)
-- Create / Update / Delete notes
+- User authentication (with JWT tokens + Cookies)
+- Create / Read / Update / Delete notes
 - Persistent PostgreSQL storage
-- Reverse proxy using Traefik
-- Dockerized frontend and backend
+- Reverse proxy & HTTPS using Traefik
+- Dockerized frontend, backend, database
+- Orchestration using Docker Compose
 - Automatic Alembic migrations
-- Production-ready architecture
-- Deployed using AWS EC2
+- Deployed using AWS EC2 + CloudFlare DNS
 
 ---
 
@@ -64,34 +68,43 @@ Backend API: http://localhost:8080/api
 
 Healthcheck: http://localhost:8080/api/health
 
-To stop everything:
 
+Shut down the App & containers using:
 ```bash
-docker compose down --volumes
+docker compose down
 ```
+---
 
 ## Deploying to AWS EC2 Instance:
+
 Launch an EC2 instance with Ubuntu 22.04
+
 Add a new DNS record to your domain:
 ```bash
 Type: A
 Content: <Public IPv4 address of ec2 Instance>
 ```
+
 Clone repository
+
 Change .yml scripts to include your sub-domain name and email.
 
 SSH into the instance
+
 Install docker, docker-compose, git
+
 Make a new directory:
 ```bash
 mkdir Notes-App
 cd Notes-App
 ```
+
 Clone Git repo to ec2 instance:
 ```bash
 git clone https://github.com/rajsekharde/Notes-App.git
 cd Notes-App
 ```
+
 Create .env file:
 ```bash
 nano .env
@@ -103,53 +116,66 @@ Ctrl + O
 Enter
 Ctrl + X
 ```
+
 Build docker containers:
 ```bash
 docker compose -f docker-compose.yml -f traefik.prod.yml up --build -d
 ```
+
 Check status of containers & backend logs:
 ```bash
 docker ps
 docker logs -f notes_backend
 ```
+
 To stop the containers:
 ```bash
 docker compose down
 ```
 
+---
+
 ## Project Structure
+
 /frontend     → React app (served by Nginx)
+
 /backend     → FastAPI app
+
 docker-compose.yml
+
 traefik.dev.yml
+
 traefik.prod.yml
+
 .env
+
+---
 
 ## Technologies
 
 FastAPI
 
-SQLModel
-
-Alembic
+React (Vite)
 
 PostgreSQL
 
-React (Vite)
+SQLModel
+
+Alembic
 
 Traefik
 
 Docker
 
+AWS
+
+---
+
 ## Future Plans
-
-HTTPS using Let’s Encrypt via Traefik
-
-Deployment on AWS / DigitalOcean
 
 CI/CD with GitHub Actions
 
-Multi-project hosting on single VPS
+---
 
 ## License
 
