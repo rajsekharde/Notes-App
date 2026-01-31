@@ -11,7 +11,6 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
-
 origins = [
     "http://localhost",
     "http://localhost:80",
@@ -25,8 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(notes_router)
-app.include_router(auth_router)
+app.include_router(notes_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+
 
 @app.get("/")
 def root():

@@ -21,6 +21,17 @@ from app.models import Note  # noqa
 target_metadata = SQLModel.metadata
 
 
+DATABASE_URL = (
+    f"postgresql://{os.getenv('POSTGRES_USER')}:"
+    f"{os.getenv('POSTGRES_PASSWORD')}@"
+    f"{os.getenv('DB_HOST', 'database')}:"
+    f"{os.getenv('DB_PORT', '5432')}/"
+    f"{os.getenv('POSTGRES_DB')}"
+)
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+
+
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
