@@ -32,6 +32,6 @@ app.include_router(auth_router, prefix="/api")
 def root():
     return {"Message": "Welcome to Notes App"}
 
-@app.get("/health")
+@app.get("/api/health")
 def health_check():
     return {"status": "ok"}
