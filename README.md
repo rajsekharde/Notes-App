@@ -43,7 +43,7 @@ Make sure Docker Desktop is running.
 Create a .env file in root project folder.
 Add the following variables:
 ```bash
-PPOSTGRES_USER=postgres
+POSTGRES_USER=postgres
 POSTGRES_PASSWORD=12345
 POSTGRES_DB=db
 
